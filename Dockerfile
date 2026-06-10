@@ -1,15 +1,23 @@
-FROM ubuntu:lastest AS build
+# ===== STAGE 1: BUILD =====
+FROM eclipse-temurin:21-jdk AS build
 
-RUN  apt-get update
-RUN apt-get install openjdk-21-jdk -y
-COPY . .
+WORKDIR /app
 
-RUN apt-get install maven -y
-RUN mvn clean install
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+RUN ./mvnw dependency:go-offline
 
-FROM openjdk:21-jdk-slim
+COPY src src
+RUN ./mvnw clean package -DskipTests
+
+# ===== STAGE 2: RUNTIME =====
+FROM eclipse-temurin:21-jdk
+
+WORKDIR /app
+
+COPY --from=build /app/target/gestao_vagas-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 8080
-
-COPY --from=build /TARGET/GESTAO_VAGAS-0.0.1.jara app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
