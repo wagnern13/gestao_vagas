@@ -1,0 +1,17 @@
+name: Gestoa de Vagas Application
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build:
+        runs-on: ubuntu-lastest
+        steps:
+            - name: Checkout code
+              uses: actions/checkou@v3
+            - name: Setup Java
+              uses: actions/setup-java@v3
+              with:
+                distribution: temurin
+                java-version: 21  
